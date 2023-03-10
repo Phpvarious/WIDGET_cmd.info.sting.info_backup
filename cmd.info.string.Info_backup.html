@@ -1,0 +1,467 @@
+<div class="cmd cmd-widget" data-type="info" data-subtype="string" data-cmd_id="#id#" data-cmd_uid="#uid#" data-version="#version#" data-eqLogic_id="#eqLogic_id#">
+  <!-- Widget name : cmd.info.string.Info_backup
+    Auteur           : Phpvarious
+    Mise à jour      : 20/01/2022 => création
+    Version actuelle : 10/03/2023
+    Lien          : https://phpvarious.github.io/documentation/widget/fr_FR/widget_scenario/info_backup/
+  -->
+  <template>
+    <div>couleurBackground : couleur d'arrière plan - Exemple : white, #ffffff ..... [Défaut : transparent]</div>
+    <div>borderRadiusTuile :  Effet Arrondi autour de la tuile - entre 0 et 50 [Défaut : 0]</div>
+    <div>couleurText : couleur du texte - Exemple : white, #ffffff ..... [Défaut : couleur du core]</div>
+    <div>styleLoader : style de logo "loading" - Exemple : 1, 2, 3, 4. [Défaut : 1]</div>
+    <div>couleurLoader : couleur du logo "loading" - Exemple : white, #ffffff ..... [Défaut : couleur du core]</div>
+    <div>couleurIcones : couleur des icones - Exemple : white, #ffffff ..... [Défaut : couleur du core]</div>
+    <div>borderRadiusIcones : Effet Arrondi autour de l'icone - entre 0 et 50 [Défaut : 50]</div>
+    <div>couleurCircleSucces : Couleur du cercle en cas de succès - Exemple : white, #ffffff ..... [Défaut : couleur du core]</div>
+    <div>couleurCircleWarning : Couleur du cercle en cas de warning - Exemple : white, #ffffff ..... [Défaut : couleur du core]</div>
+    <div>couleurCircleError : Couleur du cercle en cas d'erreur - Exemple : white, #ffffff ..... [Défaut : couleur du core]</div>
+  </template>
+    
+  <div class="widget#id#">
+    <div class="alert#id#" style="display:none;"><h1>Données inexistantes !!</h1></div>
+    <div class="startBackup#id#" style="display:none;">
+      <div class="lds#id#">
+        <div class="lds-dual-ring#id#"></div>
+        <div class="lds-ripple#id#"><div></div><div></div></div>
+      </div>
+      <div class="startBackupAtt#id#"><h2>Sauvegarde en cours ...</h2></div>
+    </div>
+    <div class="endBackup#id#" style="display:none;">
+      <div class="endBackupAtt#id#"><h2>Sauvegarde Terminée</h2>
+        <span class="BackupName#id#"></span></div>
+    </div>
+    <div class="BackupLocal#id#" style="display:none;">
+      <div class="container#id#">
+        <div class="circle#id# circleBackupLocal#id#">
+          <i class="fas fa-folder-open"></i>
+        </div>
+        Locale
+      </div>
+    </div>
+    <div class="BackupSamba#id#" style="display:none;">
+      <div class="container#id#">
+        <div class="circle#id# circleBackupSamba#id#">
+          <i class="fas fa-network-wired"></i>
+        </div>
+        Samba
+      </div>
+    </div>
+    <div class="BackupMarket#id#" style="display:none;">
+      <div class="container#id#">
+        <div class="circle#id# circleBackupMarket#id#">
+          <i class="fas fa-cloud"></i>
+        </div>
+        Market
+      </div>
+    </div>
+  </div>
+  <script>
+    var debug#id# = ('#debug#' != '#' + 'debug#') ? true : false;
+    var fullJs#id# = false
+    var jeedomVersion#id# = 4.4
+    if (debug#id#) console.log('┌─────────────────── Widget Info Backup [#id#] Compatibilité V4.2 V4.3 V4.4 ───────────────')
+    /* Compatibilité V4.2 V4.3 V4.4 */
+    /**/ if(typeof jeeFrontEnd === 'undefined') {
+    /**/   if (debug#id#) console.log('| jeeFrontEnd no exist -> version <= 4.2')
+    /**/   jeedomVersion#id# = 4.2
+    /**/ }
+    /**/ else
+    /**/ {
+    /**/   jeedomVersion#id# = jeeFrontEnd.jeedomVersion.substr(0, 3)
+    /**/   if (debug#id#) console.log('| jeeFrontEnd -> version == ' + jeedomVersion#id#)
+    /**/ }
+    /**/ if (jeedomVersion#id# >= 4.4) {
+    /**/   fullJs#id# = true
+    /**/   if (debug#id#) console.log('| Full Js')
+    /**/ }
+    /**/ if (typeof jeedom.cmd.addUpdateFunction !== 'function') { // a partir de la 4.3
+    /**/   if (debug#id#) console.log('| jeedom.cmd.addUpdateFunction no exist')
+    /**/   jeedom.cmd.addUpdateFunction = function(id,func) { jeedom.cmd.update[id]=func; }
+    /**/ }
+    /* ------------------------------------------ */
+    
+    if ('#couleurText#' != '#'+'couleurText#') document.documentElement.style.setProperty('--couleurText#id#', '#couleurText#')
+    if ('#couleurBackground#' != '#'+'couleurBackground#') document.documentElement.style.setProperty('--background#id#', '#couleurBackground#')
+    if ('#couleurLoader#' != '#'+'couleurLoader#') document.documentElement.style.setProperty('--couleurLoader#id#', '#couleurLoader#')
+    if ('#couleurIcones#' != '#'+'couleurIcones#') document.documentElement.style.setProperty('--couleurIcones#id#', '#couleurIcones#')
+    if ('#borderRadiusIcones#' != '#'+'borderRadiusIcones#') document.documentElement.style.setProperty('--borderRadiusIcones#id#', '#borderRadiusIcones#%')
+    if ('#borderRadiusTuile#' != '#'+'borderRadiusTuile#') document.documentElement.style.setProperty('--borderRadiusTuile#id#', '#borderRadiusTuile#px')
+    
+    var couleurCircleSucces#id# = ('#couleurCircleSucces#' != '#'+'couleurCircleSucces#') ? "#couleurCircleSucces#" : "var(--al-success-color)";
+    var couleurCircleWarning#id# = ('#couleurCircleWarning#' != '#'+'couleurCircleWarning#') ? "#couleurCircleWarning#" : "var(--al-warning-color)";
+    var couleurCircleError#id# = ('#couleurCircleError#' != '#'+'couleurCircleError#') ? "#couleurCircleError#" : "var(--al-danger-color)";
+    var styleLoader#id# = is_numeric('#styleLoader#') ? parseFloat('#styleLoader#'):1;
+    
+    if (is_object(cmd = document.querySelector('.cmd[data-cmd_uid="#uid#"]'))) {
+      if (styleLoader#id# == 1) cmd.querySelector('.lds#id#').innerHTML = '<div class="lds-dual-ring#id#"></div>'
+      else if (styleLoader#id# == 2) cmd.querySelector('.lds#id#').innerHTML = '<div class="lds-ripple#id#"><div></div><div></div></div>'
+      else if (styleLoader#id# == 3) cmd.querySelector('.lds#id#').innerHTML = '<div class="lds-facebook#id#"><div></div><div></div><div></div></div>'
+      else if (styleLoader#id# == 4) cmd.querySelector('.lds#id#').innerHTML = '<div class="lds-ring#id#"><div></div><div></div><div></div><div></div></div>'
+      else cmd.querySelector('.lds#id#').innerHTML = '<div class="lds-dual-ring#id#"></div>'
+    }
+    if (debug#id#) console.log('└──────────────────────────────────────────────────────')
+    
+    jeedom.cmd.addUpdateFunction('#id#', function(_options) {
+      deleteAll#id#();
+      if (is_object(cmd = document.querySelector('.cmd[data-cmd_uid="#uid#"]'))) {
+        var IS_JSON = true;
+        try
+        {
+          var obj = JSON.parse(_options.display_value)
+        }
+        catch(err)
+        {
+          IS_JSON = false;
+        }
+        if (_options.display_value != "" && IS_JSON) // si json
+        {
+          let result = Object.keys(obj).length
+          
+          let date = obj['date']
+          let heure = obj['heure']
+          let minSizeBackup = obj['minSizeBackup']
+          
+          let fileName = obj['backup']['local']['fileName']
+          let fileSize = obj['backup']['local']['fileSize']
+          let erreurFileSize = obj['backup']['local']['erreurFileSize']
+          let backupLocalError = obj['backup']['local']['error']
+          let backupSambaError = obj['backup']['samba']['error']
+          let backupMarketError = obj['backup']['market']['error']
+          
+          
+          let lastSave = obj['lastSave']
+          let update = obj['update']
+          let action = obj['action']
+          let errorScenario = obj['errorScenario']
+          let errorLogBackup = obj['errorLogBackup']
+          
+          if (debug#id#) {
+            console.log('┌─────────────────── Widget Info Backup [#id#] en debug ───────────────')
+            console.log('| Nombre de clés dans le json : ' + result)
+            console.log('| styleLoader --> ' + styleLoader#id#);
+            console.log('|┌────────────────────────────────── JSON ─────────────────────────────')
+            console.log('|| date --> ' + date)
+            console.log('|| heure --> ' + heure)
+            console.log('|| minSizeBackup --> ' + minSizeBackup)
+            console.log('|| fileName --> ' + fileName)
+            console.log('|| fileSize --> ' + fileSize)
+            console.log('|| erreurFileSize --> ' + erreurFileSize)
+            console.log('|| backupLocalError --> ' + backupLocalError)
+            console.log('|| backupSambaError --> ' + backupSambaError)
+            console.log('|| backupMarketError --> '+backupMarketError)
+            
+            console.log('|| lastSave --> ' + lastSave)
+            console.log('|| update --> ' + update)
+            console.log('|| action --> ' + action)
+            console.log('|| errorScenario --> ' + errorScenario)
+            console.log('|| errorLogBackup --> ' + errorLogBackup)
+            console.log('|└─────────────────────────────────────────────────────')
+            console.log('└──────────────────────────────────────────────────────')
+          }
+          
+          if (result == 9) 
+          {
+            if (errorScenario == 0) {
+              if (action == 'endBackup') {
+                cmd.querySelector('.startBackup#id#').style.display = 'none'
+                cmd.querySelector('.endBackup#id#').style.display = ''
+                ////////////////////////// SAMBA ///////////////////////////
+                if (_options.display_value.includes("samba") && backupSambaError != -1) {
+                  cmd.querySelector('.BackupSamba#id#').style.display = ''
+                  if (backupSambaError >= 1) {
+                    document.documentElement.style.setProperty('--couleurCircleBackupSamba#id#', couleurCircleError#id#)
+                    cmd.querySelector('.BackupSamba#id#').setAttribute('title', '- La Sauvegarde est absente du dossier samba.')
+                  }
+                  else {
+                    document.documentElement.style.setProperty('--couleurCircleBackupSamba#id#', couleurCircleSucces#id#)
+                    cmd.querySelector('.BackupSamba#id#').setAttribute('title', 'Sauvegarde Présente')
+                  }
+                }
+                ////////////////////////// LOCAL ///////////////////////////
+                if (_options.display_value.includes("local") && backupLocalError != -1) {
+                  if (backupLocalError >= 1 || errorLogBackup >= 1 || erreurFileSize >=1) {
+                    var txtError = ''
+                    if (backupLocalError >= 1) {
+                      document.documentElement.style.setProperty('--couleurCircleBackupLocal#id#', couleurCircleError#id#)
+                      cmd.querySelector('.BackupName#id#').innerHTML = ''
+                      txtError += '- La Sauvegarde est absente du dossier local.<br>'
+                    }
+                    else {
+                      document.documentElement.style.setProperty('--couleurCircleBackupLocal#id#', couleurCircleWarning#id#)
+                      cmd.querySelector('.BackupName#id#').innerHTML = '['+fileName+']'
+                      if (erreurFileSize >= 1) txtError += '- Taille de la sauvegarde '+fileSize+' < '+minSizeBackup+'.<br>'
+                    }
+                    if (errorLogBackup >= 1) txtError += '- Une erreur est présente dans le log "backup."'
+                    cmd.querySelector('.BackupLocal#id#').setAttribute('title', txtError)
+                  }
+                  else {
+                    document.documentElement.style.setProperty('--couleurCircleBackupLocal#id#', couleurCircleSucces#id#)
+                    cmd.querySelector('.BackupLocal#id#').setAttribute('title', 'Sauvegarde Présente')
+                    cmd.querySelector('.BackupName#id#').innerHTML = '['+fileName+']'
+                  }
+                  cmd.querySelector('.BackupLocal#id#').style.display = ''
+                }
+                else cmd.querySelector('.BackupLocal#id#').style.display = 'none'
+                ////////////////////////// MARKET ///////////////////////////
+                if (_options.display_value.includes("market") && backupMarketError != -1) {
+                  if (backupMarketError >= 1) {
+                    document.documentElement.style.setProperty('--couleurCircleBackupMarket#id#', couleurCircleError#id#)
+                    cmd.querySelector('.BackupMarket#id#').setAttribute('title', '- La Sauvegarde est absente du Market.')
+                  }
+                  else {
+                    document.documentElement.style.setProperty('--couleurCircleBackupMarket#id#', couleurCircleSucces#id#)
+                    cmd.querySelector('.BackupMarket#id#').setAttribute('title', 'Sauvegarde Présente.')
+                  }
+                  cmd.querySelector('.BackupMarket#id#').style.display = ''
+                }
+                else cmd.querySelector('.BackupMarket#id#').style.display = 'none'
+              }
+              else if (action == 'startBackup' || action == 'startUpdate') {
+                cmd.querySelector('.startBackup#id#').style.display = ''
+                cmd.querySelector('.startBackupAtt#id#').innerHTML = '<h2>Sauvegarde en cours ...</h2> ['+lastSave+']'
+              }
+              else {
+                cmd.querySelector('.alert#id#').style.display = ''
+                cmd.querySelector('.alert#id#').innerHTML = '<h2>--- [ERROR] ---<br><br>Aucune action envoyée !!!</h2>'
+              }
+            }
+            else {
+              cmd.querySelector('.alert#id#').style.display = ''
+              cmd.querySelector('.alert#id#').innerHTML = '<h2>--- [ERROR] ---<br><br>Vérifier les logs du scénario !!!</h2>'
+            }
+            cmd.querySelector('.endBackupAtt#id#').setAttribute('title', '{{Valeur du}} '+_options.valueDate);
+          }
+          else
+          {
+            cmd.querySelector('.alert#id#').style.display = ''
+            cmd.querySelector('.alert#id#').innerHTML = '<h2>--- [ERROR] ---<br><br>Json imcomplet !!!</h2>'
+          }
+        }
+        else
+        {
+          cmd.querySelector('.alert#id#').style.display = ''
+          cmd.querySelector('.alert#id#').innerHTML = '<h2>--- [ERROR] ---<br><br>Json invalide !!!</h2>'
+        }
+      }
+    })
+    
+    jeedom.cmd.refreshValue([{ cmd_id: '#id#', display_value: '#state#', valueDate: '#valueDate#', collectDate: '#collectDate#', alertLevel: '#alertLevel#'}])
+    
+    function deleteAll#id#() {
+      if (is_object(cmd = document.querySelector('.cmd[data-cmd_uid="#uid#"]'))) {
+        cmd.querySelector('.startBackup#id#').style.display = 'none'
+        cmd.querySelector('.alert#id#').style.display = 'none'
+        cmd.querySelector('.BackupSamba#id#').style.display = 'none'
+        cmd.querySelector('.BackupSamba#id#').setAttribute('title', '')
+        cmd.querySelector('.BackupLocal#id#').style.display = 'none'
+        cmd.querySelector('.BackupLocal#id#').setAttribute('title', '')
+        cmd.querySelector('.BackupMarket#id#').style.display = 'none';
+        cmd.querySelector('.BackupMarket#id#').setAttribute('title', '')
+        cmd.querySelector('.endBackup#id#').style.display = 'none'
+        cmd.querySelector('.BackupName#id#').innerHTML = ""
+        cmd.querySelector('.endBackupAtt#id#').setAttribute('title', '')
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --couleurText#id#: var(--txt-color);
+      --background#id#: transparent;
+      --couleurLoader#id#: var(--link-color);
+      --couleurCircleBackupLocal#id#: red;
+      --couleurCircleBackupSamba#id#: red;
+      --couleurCircleBackupMarket#id#: red;
+      --couleurIcones#id#: var(--link-color);
+      --borderRadiusIcones#id#: 50%;
+      --borderRadiusTuile#id#: 0px;
+    }
+    .widget#id# {
+      transition: background 1000ms ease-in-out 0s;
+      /* width: 350px;*/
+      min-width: 350px;
+      min-height: 185px;
+      border-radius: var(--borderRadiusTuile#id#);
+      background-color: var(--background#id#);
+      padding-top: 1px;
+      color: var(--couleurText#id#);
+    }
+    .alert#id# {
+      text-align: center;
+    }
+    .alert#id# h2 {
+      color: var(--couleurText#id#);
+    }
+     .action#id# {
+      text-align: center;
+    }
+    .startBackup#id# h2, .endBackup#id# h2 {
+      color: var(--couleurText#id#);
+      line-height: unset;
+      margin-bottom: 20px;
+    }
+    .startBackup#id#, .endBackup#id# {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .BackupLocal#id#, .BackupSamba#id#, .BackupMarket#id# {
+      display: inline-block;
+    }  
+    .container#id# {
+      display: inline-block;
+      padding: 10px;
+      height: 90px;
+      width: 90px;
+    }
+    .circle#id# {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: sans-serif;
+      height: 100%;
+      width: 100%;
+      border-radius: var(--borderRadiusIcones#id#);
+      margin-bottom: 5px;
+    }
+    .circleBackupLocal#id# {
+      background: radial-gradient(ellipse at center, rgba(255, 113, 12, 0) 60%, var(--couleurCircleBackupLocal#id#) 62%);
+    }
+    .circleBackupSamba#id# {
+      background: radial-gradient(ellipse at center, rgba(255, 113, 12, 0) 60%, var(--couleurCircleBackupSamba#id#) 62%);
+    }
+    .circleBackupMarket#id# {
+      background: radial-gradient(ellipse at center, rgba(255, 113, 12, 0) 60%, var(--couleurCircleBackupMarket#id#) 62%);
+    }  
+    .circle#id# i {
+      font-size: 25px;
+      color: var(--couleurIcones#id#);
+    }
+    .lds-ripple#id# {
+      display: inline-block;
+      position: relative;
+      width: 80px;
+      height: 80px;
+    }
+    .lds-ripple#id# div {
+      position: absolute;
+      border: 4px solid var(--couleurLoader#id#);
+      opacity: 1;
+      border-radius: 50%;
+      animation: lds-ripple#id# 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+    }
+    .lds-dual-ring#id# {
+      display: inline-block;
+      width: 80px;
+      height: 80px;
+    }
+    .lds-ripple#id# div:nth-child(2) {
+      animation-delay: -0.5s;
+    }
+    @keyframes lds-ripple#id# {
+      0% {
+        top: 36px;
+        left: 36px;
+        width: 0;
+        height: 0;
+        opacity: 1;
+      }
+      100% {
+        top: 0px;
+        left: 0px;
+        width: 72px;
+        height: 72px;
+        opacity: 0;
+      }
+    }
+    .lds-dual-ring#id#:after {
+      content: " ";
+      display: block;
+      width: 64px;
+      height: 64px;
+      margin: 8px;
+      border-radius: 50%;
+      border: 6px solid #fff;
+      border-color: var(--couleurLoader#id#) transparent var(--couleurLoader#id#) transparent;
+      animation: lds-dual-ring#id# 1.2s linear infinite;
+    }
+    @keyframes lds-dual-ring#id# {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+    .lds-facebook#id# {
+      display: inline-block;
+      position: relative;
+      width: 80px;
+      height: 80px;
+    }
+    .lds-facebook#id# div {
+      display: inline-block;
+      position: absolute;
+      left: 8px;
+      width: 16px;
+      background: var(--couleurLoader#id#);
+      animation: lds-facebook#id# 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite;
+    }
+    .lds-facebook#id# div:nth-child(1) {
+      left: 8px;
+      animation-delay: -0.24s;
+    }
+    .lds-facebook#id# div:nth-child(2) {
+      left: 32px;
+      animation-delay: -0.12s;
+    }
+    .lds-facebook#id# div:nth-child(3) {
+      left: 56px;
+      animation-delay: 0;
+    }
+    @keyframes lds-facebook#id# {
+      0% {
+        top: 8px;
+        height: 64px;
+      }
+      50%, 100% {
+        top: 24px;
+        height: 32px;
+      }
+    }
+    .lds-ring#id# {
+      display: inline-block;
+      position: relative;
+      width: 80px;
+      height: 80px;
+    }
+    .lds-ring#id# div {
+      box-sizing: border-box;
+      display: block;
+      position: absolute;
+      width: 64px;
+      height: 64px;
+      margin: 8px;
+      border: 8px solid #fff;
+      border-radius: 50%;
+      animation: lds-ring#id# 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+      border-color: var(--couleurLoader#id#) transparent transparent transparent;
+    }
+    .lds-ring#id# div:nth-child(1) {
+      animation-delay: -0.45s;
+    }
+    .lds-ring#id# div:nth-child(2) {
+      animation-delay: -0.3s;
+    }
+    .lds-ring#id# div:nth-child(3) {
+      animation-delay: -0.15s;
+    }
+    @keyframes lds-ring#id# {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</div>
